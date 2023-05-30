@@ -3,7 +3,7 @@ name: Postman Collection Runner
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   postman:
@@ -21,9 +21,23 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
 
+      - name: Set Collection Variables
+        run: |
+          echo "{
+            \"id\": \"45327923-4ff1-4d95-8f4f-8683bbdcfffc\",
+            \"values\": [
+              {
+                \"key\": \"variable_key\",
+                \"value\": \"${{ secrets.GITHUB_ENV_VARIABLE }}\",
+                \"enabled\": true
+              }
+              // Add more variables if needed
+            ]
+          }" > collection_variables.json
+
       - name: Run Postman Collection
         id: newman
-        run: newman run postman_collection.json --reporters cli,junit --reporter-junit-export postman-report.xml
+        run: newman run postman_collection.json --envVar collection_variables.json --reporters cli,junit --reporter-junit-export postman-report.xml
 
       - name: Parse Newman Results
         id: parse-results
