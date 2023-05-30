@@ -1,0 +1,43 @@
+name: Postman Collection Runner
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  postman:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Run Postman Collection
+        id: newman
+        run: newman run /postman.json --reporters cli,junit --reporter-junit-export postman-report.xml
+
+      - name: Parse Newman Results
+        id: parse-results
+        run: |
+          echo "::set-output name=failed_tests::$(grep -oP '(?<=<failure>).*(?=<\/failure>)' postman-report.xml | wc -l)"
+          echo "::set-output name=total_tests::$(grep -oP '(?<=tests\=\"\d+\").*(?=\")' postman-report.xml | grep -oP '\d+')"
+
+      - name: Check Test Results
+        run: |
+          failed_tests="${{ steps.parse-results.outputs.failed_tests }}"
+          total_tests="${{ steps.parse-results.outputs.total_tests }}"
+          if [[ "$failed_tests" -gt 0 ]]; then
+            echo "Postman tests failed: $failed_tests/$total_tests"
+            exit 1
+          else
+            echo "All Postman tests passed: $total_tests/$total_tests"
+          fi
