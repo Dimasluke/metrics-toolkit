@@ -3,7 +3,7 @@ name: Postman Collection Runner
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   postman:
@@ -28,13 +28,13 @@ jobs:
       - name: Parse Newman Results
         id: parse-results
         run: |
-          echo "::set-output name=failed_tests::$(grep -oP '(?<=<failure>).*(?=<\/failure>)' postman-report.xml | wc -l)"
-          echo "::set-output name=total_tests::$(grep -oP '(?<=tests\=\"\d+\").*(?=\")' postman-report.xml | grep -oP '\d+')"
+          echo "FAILED_TESTS=$(grep -oP '(?<=<failure>).*(?=<\/failure>)' postman-report.xml | wc -l)" >> $GITHUB_ENV
+          echo "TOTAL_TESTS=$(grep -oP '(?<=tests\=\"\d+\").*(?=\")' postman-report.xml | grep -oP '\d+')" >> $GITHUB_ENV
 
       - name: Check Test Results
         run: |
-          failed_tests="${{ steps.parse-results.outputs.failed_tests }}"
-          total_tests="${{ steps.parse-results.outputs.total_tests }}"
+          failed_tests=$FAILED_TESTS
+          total_tests=$TOTAL_TESTS
           if [[ "$failed_tests" -gt 0 ]]; then
             echo "Postman tests failed: $failed_tests/$total_tests"
             exit 1
