@@ -3,7 +3,7 @@ name: Postman Collection Runner
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   postman:
