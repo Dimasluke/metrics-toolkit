@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Postman Collection
         id: newman
-        run: newman run postman_collection.json --envVar collection_variables.json --reporters cli,junit --reporter-junit-export postman-report.xml
+        run: newman run postman_collection.json --env-var collection_variables.json --reporters cli,junit --reporter-junit-export postman-report.xml
 
       - name: Parse Newman Results
         id: parse-results
