@@ -1,9 +1,9 @@
 name: Postman Collection Runner
 
 on:
-  push:
+  pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   postman:
